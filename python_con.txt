@@ -1,0 +1,169 @@
+Write  a  program  to  implement  Menu driven MySQL/Oracle database  connectivity  with  any  front  end language for Python/Java/PHP to implement Database navigation operations (add, delete, edit etc.)
+Create a table for employee(empid, name, salary) and perform operations as insert a record, update values, delete particular record, display all record, display employees having salary >50000, display record for particular employee
+
+
+mysql -u root -p
+
+CREATE DATABASE testdb;
+
+USE testdb;
+
+CREATE TABLE Employee (
+    empid INT PRIMARY KEY,
+    name VARCHAR(100),
+    salary DECIMAL(10, 2)
+);
+
+
+# on second terminal
+pip install mysql-connector
+
+# this is main python code 
+import mysql.connector
+
+# Function to establish connection to MySQL
+def connect_to_db():
+    try:
+        conn = mysql.connector.connect(
+            host="localhost",  # Database host
+            user="root",       # Database username (adjust accordingly)
+            password="password",  # Database password (adjust accordingly)
+            database="testdb"   # Database name (adjust accordingly)
+        )
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+# Function to insert a new employee record
+def insert_record():
+    conn = connect_to_db()
+    if conn:
+        cursor = conn.cursor()
+        empid = int(input("Enter Employee ID: "))
+        name = input("Enter Employee Name: ")
+        salary = float(input("Enter Employee Salary: "))
+        
+        cursor.execute("INSERT INTO Employee (empid, name, salary) VALUES (%s, %s, %s)", (empid, name, salary))
+        conn.commit()
+        print("Record inserted successfully.")
+        cursor.close()
+        conn.close()
+
+# Function to update an existing employee record
+def update_record():
+    conn = connect_to_db()
+    if conn:
+        cursor = conn.cursor()
+        empid = int(input("Enter Employee ID to update: "))
+        name = input("Enter New Name: ")
+        salary = float(input("Enter New Salary: "))
+        
+        cursor.execute("UPDATE Employee SET name = %s, salary = %s WHERE empid = %s", (name, salary, empid))
+        conn.commit()
+        print("Record updated successfully.")
+        cursor.close()
+        conn.close()
+
+# Function to delete an employee record
+def delete_record():
+    conn = connect_to_db()
+    if conn:
+        cursor = conn.cursor()
+        empid = int(input("Enter Employee ID to delete: "))
+        
+        cursor.execute("DELETE FROM Employee WHERE empid = %s", (empid,))
+        conn.commit()
+        print("Record deleted successfully.")
+        cursor.close()
+        conn.close()
+
+# Function to display all employee records
+def display_all_records():
+    conn = connect_to_db()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Employee")
+        records = cursor.fetchall()
+        
+        print("Employee Records:")
+        for row in records:
+            print(f"ID: {row[0]}, Name: {row[1]}, Salary: {row[2]}")
+        
+        cursor.close()
+        conn.close()
+
+# Function to display employees with salary greater than 50000
+def display_high_salary_employees():
+    conn = connect_to_db()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Employee WHERE salary > 50000")
+        records = cursor.fetchall()
+        
+        print("Employees with salary > 50000:")
+        for row in records:
+            print(f"ID: {row[0]}, Name: {row[1]}, Salary: {row[2]}")
+        
+        cursor.close()
+        conn.close()
+
+# Function to display a particular employee record
+def display_employee_by_id():
+    conn = connect_to_db()
+    if conn:
+        cursor = conn.cursor()
+        empid = int(input("Enter Employee ID to display: "))
+        
+        cursor.execute("SELECT * FROM Employee WHERE empid = %s", (empid,))
+        record = cursor.fetchone()
+        
+        if record:
+            print(f"Employee ID: {record[0]}, Name: {record[1]}, Salary: {record[2]}")
+        else:
+            print("No record found with this ID.")
+        
+        cursor.close()
+        conn.close()
+
+# Main function to display the menu and call respective functions
+def menu():
+    while True:
+        print("\n--- Employee Database Operations ---")
+        print("1. Insert a Record")
+        print("2. Update a Record")
+        print("3. Delete a Record")
+        print("4. Display All Records")
+        print("5. Display Employees with Salary > 50000")
+        print("6. Display Record for a Particular Employee")
+        print("7. Exit")
+
+        choice = int(input("Enter your choice: "))
+
+        if choice == 1:
+            insert_record()
+        elif choice == 2:
+            update_record()
+        elif choice == 3:
+            delete_record()
+        elif choice == 4:
+            display_all_records()
+        elif choice == 5:
+            display_high_salary_employees()
+        elif choice == 6:
+            display_employee_by_id()
+        elif choice == 7:
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice, please try again.")
+
+# Run the program
+if __name__ == "__main__":
+    menu()
+
+
+
+if it is giving error like this :- Error: Authentication plugin 'caching_sha2_password' is not supported
+# then run this command :- pip install --upgrade mysql-connector-python
+# and again try to run the program
