@@ -1,0 +1,97 @@
+Python Code for Assignment 10(DBMS)
+
+
+
+from pymongo import MongoClient
+
+
+def connect_to_db():
+    try:
+        
+        client = MongoClient('localhost', 27017)
+        db = client['School']  
+        collection = db['students']  
+        return collection
+    except Exception as e:
+        print("Error connecting to database:", e)
+        return None
+
+
+def insert_student(collection):
+    rollno = int(input("Enter Roll No: "))
+    name = input("Enter Name: ")
+    address = input("Enter Address: ")
+    contact_no = input("Enter Contact No: ")
+    department = input("Enter Department: ")
+
+    student = {
+        "rollno": rollno,
+        "name": name,
+        "address": address,
+        "contact_no": contact_no,
+        "department": department
+    }
+
+    collection.insert_one(student)
+    print("Student details inserted successfully!")
+
+
+def update_address(collection):
+    collection.update_one(
+        {"name": "Pooja", "address": "Shivaji Nagar"},  
+        {"$set": {"address": "Saraswati Nagar"}} 
+    )
+    print("Address updated successfully for Pooja!")
+
+
+def display_students(collection):
+    students = collection.find()  
+    for student in students:
+        print(f"Roll No: {student['rollno']}, Name: {student['name']}, Address: {student['address']}, Contact: {student['contact_no']}, Department: {student['department']}")
+
+
+def delete_student(collection):
+    rollno = int(input("Enter the Roll No to delete: "))
+    result = collection.delete_one({"rollno": rollno})  
+    if result.deleted_count > 0:
+        print(f"Student with Roll No {rollno} deleted successfully!")
+    else:
+        print(f"No student found with Roll No {rollno}")
+
+# Menu-driven program
+def menu():
+    collection = connect_to_db()
+    if collection is None:
+        print("Error: Could not connect to the database!")
+        return
+
+    while True:
+        print("\n--- Student Management Menu ---")
+        print("1. Insert student details")
+        print("2. Update Pooja's address")
+        print("3. Display all students")
+        print("4. Delete student by roll number")
+        print("5. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            insert_student(collection)
+        elif choice == '2':
+            update_address(collection)
+        elif choice == '3':
+            display_students(collection)
+        elif choice == '4':
+            delete_student(collection)
+        elif choice == '5':
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice! Please try again.")
+
+# Run the program
+if __name__ == "__main__":
+    menu()
+
+
+
