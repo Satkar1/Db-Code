@@ -1,0 +1,90 @@
+trigger 
+
+
+-- Create Student and Student Audit tables
+CREATE TABLE Student (
+    roll NUMBER PRIMARY KEY,
+    name VARCHAR2(50)
+);
+
+CREATE TABLE Student_Audit (
+    roll NUMBER,
+    name VARCHAR2(50),
+    action VARCHAR2(10),
+    action_date DATE
+);
+
+-- Trigger to log changes on Student table
+CREATE OR REPLACE TRIGGER student_audit_trigger
+AFTER UPDATE OR DELETE ON Student
+FOR EACH ROW
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO Student_Audit (roll, name, action, action_date)
+        VALUES (:OLD.roll, :OLD.name, 'UPDATE', SYSDATE);
+    ELSIF DELETING THEN
+        INSERT INTO Student_Audit (roll, name, action, action_date)
+        VALUES (:OLD.roll, :OLD.name, 'DELETE', SYSDATE);
+    END IF;
+END;
+
+
+
+
+explicit cursor 
+DECLARE
+   CURSOR cursor_name IS
+      SELECT column1, column2 FROM table_name WHERE condition;
+BEGIN
+   -- Open cursor
+   OPEN cursor_name;
+
+   -- Fetch rows from cursor
+   FETCH cursor_name INTO variable1, variable2;
+
+   -- Close cursor when done
+   CLOSE cursor_name;
+END;
+
+
+DECLARE
+    CURSOR student_cursor IS
+        SELECT roll, name FROM Student WHERE name LIKE 'A%';
+    
+    student_roll Student.roll%TYPE;
+    student_name Student.name%TYPE;
+BEGIN
+    OPEN student_cursor;
+    
+    LOOP
+        FETCH student_cursor INTO student_roll, student_name;
+        EXIT WHEN student_cursor%NOTFOUND;
+        
+        DBMS_OUTPUT.PUT_LINE('Roll: ' || student_roll || ', Name: ' || student_name);
+    END LOOP;
+    
+    CLOSE student_cursor;
+END;
+
+
+
+
+DECLARE
+    r1 NUMBER := 1; -- Starting radius
+    r2 NUMBER := 10; -- Ending radius
+    radius NUMBER;
+    area NUMBER;
+    perimeter NUMBER;
+BEGIN
+    FOR radius IN r1..r2 LOOP
+        -- Calculate area and perimeter
+        area := 3.1416 * radius * radius;  -- Area = π * r^2
+        perimeter := 2 * 3.1416 * radius;  -- Perimeter = 2 * π * r
+
+        -- Insert the calculated values into the Areas table
+        INSERT INTO Areas (radius, area, perimeter)
+        VALUES (radius, area, perimeter);
+    END LOOP;
+    
+    COMMIT;
+END;
